@@ -1,22 +1,45 @@
-- name: Run Android Tests
-  run: ./gradlew :app:androidApp:testDebugUnitTest
+name: Android CI CD Firebase
 
-- name: Build Debug APK
-  run: ./gradlew :app:androidApp:assembleDebug
+on:
+  push:
+    branches: [ main ]
 
-- name: Copy APK
-  run: cp app/androidApp/build/outputs/apk/debug/*.apk app-debug.apk
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-- name: Upload APK To GitHub
-  uses: actions/upload-artifact@v4
-  with:
-    name: debug-apk
-    path: app-debug.apk
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-- name: Deploy APK To Firebase
-  uses: wzieba/Firebase-Distribution-Github-Action@v1
-  with:
-    appId: ${{ secrets.FIREBASE_APP_ID }}
-    serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-    groups: Android
-    file: app-debug.apk
+      - name: Set Up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Give Gradle Permission
+        run: chmod +x ./gradlew
+
+      - name: Run Android Tests
+        run: ./gradlew :app:androidApp:testDebugUnitTest
+
+      - name: Build Debug APK
+        run: ./gradlew :app:androidApp:assembleDebug
+
+      - name: Copy APK
+        run: cp app/androidApp/build/outputs/apk/debug/*.apk app-debug.apk
+
+      - name: Upload APK To GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app-debug.apk
+
+      - name: Deploy APK To Firebase
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          groups: Android
+          file: app-debug.apk
