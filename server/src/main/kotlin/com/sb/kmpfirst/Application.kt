@@ -43,7 +43,7 @@ fun Application.module() {
             call.respond(
                 AuthResponse(
                     success = true,
-                    message = "OTP sent to ${request.mobileNumber}.use 123456 for Testing"
+                    message = "OTP sent to ${request.mobileNumber}.use 123456 for Testing "
                 ))
         }
 
